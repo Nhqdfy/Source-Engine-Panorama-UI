@@ -959,22 +959,37 @@
 	// The market entry carries market:true, which is what makes the tile render the 市场 button
 	// (its click calls SteamOverlayAPI.OpenURL).
 	var STORE_FauxPrefix = "se_store_";
+
+	// SE port: every string this layer puts on screen goes through the port's own localization file
+	// (mods/panorama_test/panorama/localization/se_port_<language>.txt, loaded by
+	// panoramauiclient/se_uicomponents.cpp via BLoadLocalizationFile( "se_port" )).  A token resolves
+	// to the game's current language; an unknown one falls back to the raw string, so this cannot
+	// throw.  The values below are tokens, not text - GetItemName() resolves them before handing them
+	// out, which keeps working whatever the content does with the result.
+	function seLocalize(token) {
+		try {
+			if (typeof $.LocalizeSafe === "function") { return $.LocalizeSafe(token); }
+			if (typeof $.Localize === "function") { return $.Localize(token); }
+		} catch (e) { }
+		return token;
+	}
+
 	var STORE_NAMES = {
-		"4883": "巴黎 2023 观众通行证",
-		"4888": "巴黎 2023 纪念包",
-		"6732": "巴黎 2023 印花",
+		"4883": "#SEPort_Store_Item_4883",
+		"4888": "#SEPort_Store_Item_4888",
+		"6732": "#SEPort_Store_Item_6732",
 		// 历代大行动(见下面的 STORE_BANNER);名字里的年份方便辨认。
-		"9101": "回旋镖行动 (2013)",
-		"9102": "勇闯荒野行动 (2013)",
-		"9103": "凤凰行动 (2014)",
-		"9104": "突围行动 (2014)",
-		"9105": "先锋行动 (2014)",
-		"9106": "血战狂潮行动 (2015)",
-		"9107": "野火行动 (2016)",
-		"9108": "九头蛇行动 (2017)",
-		"9109": "裂网大行动 (2019)",
-		"9110": "狂牙大行动 (2020)",
-		"9111": "激流大行动 (2021)"
+		"9101": "#SEPort_Store_Item_9101",
+		"9102": "#SEPort_Store_Item_9102",
+		"9103": "#SEPort_Store_Item_9103",
+		"9104": "#SEPort_Store_Item_9104",
+		"9105": "#SEPort_Store_Item_9105",
+		"9106": "#SEPort_Store_Item_9106",
+		"9107": "#SEPort_Store_Item_9107",
+		"9108": "#SEPort_Store_Item_9108",
+		"9109": "#SEPort_Store_Item_9109",
+		"9110": "#SEPort_Store_Item_9110",
+		"9111": "#SEPort_Store_Item_9111"
 	};
 	var STORE_BANNER = [
 		{ def: 4883, market: false, format: "", coupon: "" },
@@ -1020,9 +1035,9 @@
 	g.InventoryAPI.GetItemName = function (id) {
 		if (typeof id === "string" && id.indexOf(STORE_FauxPrefix) === 0) {
 			var def = id.substring(STORE_FauxPrefix.length).split("_")[0];
-			if (STORE_NAMES[def]) { return STORE_NAMES[def]; }
+			if (STORE_NAMES[def]) { return seLocalize(STORE_NAMES[def]); }
 		}
-		return "商店物品";
+		return seLocalize("#SEPort_Store_Item_Fallback");
 	};
 	g.InventoryAPI.GetItemDefinitionName = function () { return "se_store_item"; };
 	g.InventoryAPI.GetItemTypeFromEnum = function () { return ""; };
@@ -1059,7 +1074,7 @@
 				var navbar = newsPanel.Children()[0] || newsPanel;
 				var btn = $.CreatePanel('Button', navbar, 'SeStoreToggleButton');
 				btn.AddClass('news-panel-navbar-btn');
-				btn.text = '商店 / STORE';
+				btn.text = seLocalize("#SEPort_Store_Button");
 				btn.SetPanelEvent('onactivate', function () {
 					var container = $.FindChildInContext('#JsNewsContainer');
 					if (!container) { return; }
@@ -1410,24 +1425,24 @@
 			items: [
 				{
 					date: "2026-09-18",
-					title: "SE Panorama 移植版",
-					description: "新闻面板已接入本地演示数据。点击条目会在浏览器中打开链接。",
+					title: seLocalize("#SEPort_News_Title1"),
+					description: seLocalize("#SEPort_News_Desc1"),
 					imageUrl: "",
 					link: "https://blog.counter-strike.net/",
 					categories: []
 				},
 				{
 					date: "2026-09-18",
-					title: "商店与市场",
-					description: "主面板下方现在可以浏览商店横幅与市场条目。",
+					title: seLocalize("#SEPort_News_Title2"),
+					description: seLocalize("#SEPort_News_Desc2"),
 					imageUrl: "",
 					link: "https://steamcommunity.com/market/",
 					categories: []
 				},
 				{
 					date: "2026-09-17",
-					title: "好友与派对",
-					description: "右侧边栏的好友列表与派对面板来自本地会话模拟数据。",
+					title: seLocalize("#SEPort_News_Title3"),
+					description: seLocalize("#SEPort_News_Desc3"),
 					imageUrl: "",
 					link: "https://www.counter-strike.net/",
 					categories: []
